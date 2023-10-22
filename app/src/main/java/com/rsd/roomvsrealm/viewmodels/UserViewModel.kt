@@ -18,12 +18,14 @@ class UserViewModel(
     @OptIn(ExperimentalTime::class)
     fun populateDataToDb() {
         Log.d("RSD", "populateDataToDb")
+        val listOfUsers = mutableListOf<User>()
+        for (i: Int in 1..100) {
+            listOfUsers.add(User(i, "name $i", "surname $i", i * 2))
+        }
         val time = measureTimedValue {
-            for (i: Int in 1..1000) {
-                viewModelScope.launch {
-                    withContext(Dispatchers.IO) {
-                        userDao.insertAll(User(i, "name $i", "surname $i", i * 2))
-                    }
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    userDao.insertAll(listOfUsers)
                 }
             }
         }
