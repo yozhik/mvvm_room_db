@@ -1,22 +1,20 @@
-package com.rsd.roomvsrealm
+package com.rsd.roomvsrealm.ui.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.rsd.roomvsrealm.data.TestRoomDatabase
 import com.rsd.roomvsrealm.ui.theme.MyApplicationTheme
-import com.rsd.roomvsrealm.viewmodels.UserViewModel
+import com.rsd.roomvsrealm.ui.viewmodels.MainScreenState
+import com.rsd.roomvsrealm.ui.viewmodels.UserViewModel
 
 class MainActivity : ComponentActivity() {
     private val db by lazy {
@@ -39,37 +37,29 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.getUsersFromDb()
-        viewModel.populateDataToDb()
-        viewModel.getUsersFromDb()
-
-
         setContent {
             MyApplicationTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Room Sample")
-                }
+                val state by viewModel.state.collectAsState()
+                MainScreen(
+                    state = state,
+                    onPopulateRoomDatabase = viewModel::populateDataToDb,
+                    onSelectUsersFromRoomDatabase = viewModel::getUsersFromDb,
+                )
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     MyApplicationTheme {
-        Greeting("Room Sample")
+        MainScreen(MainScreenState(
+            "23s",
+            isLoading = false
+        ),
+            onPopulateRoomDatabase = {},
+            onSelectUsersFromRoomDatabase = {})
     }
 }
